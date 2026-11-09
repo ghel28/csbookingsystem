@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#eef5ff" />
+    <meta name="description" content="College of Saint Lawrence Computer Science laboratory booking and reservation system." />
+    <title>College of Saint Lawrence · CS Lab Reservations</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="src/styles/main.css" />
+    <script src="src/data/labs.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+    <script src="src/scripts/app.js" defer></script>
+  </head>
+  <body>
+    <div class="bubble-field" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <header class="app-header">
+      <a class="brand" href="#dashboard" aria-label="College of Saint Lawrence Computer Science lab reservations dashboard"><span class="brand-mark" aria-hidden="true">{ }</span><span>College of Saint Lawrence <strong>Computer Science Lab Reservations</strong></span></a>
+      <div class="header-account"><span class="account-indicator" id="accountIndicator">Profile not set</span><button class="button button--primary" type="button" data-view="request">Request a lab</button></div>
+    </header>
+    <div class="app-layout">
+      <nav class="side-nav" aria-label="Main navigation">
+        <p class="nav-caption">WORKSPACE</p>
+        <button class="nav-link is-active" type="button" data-view="dashboard"><span aria-hidden="true">▦</span>Dashboard</button>
+        <button class="nav-link" type="button" data-view="request"><span aria-hidden="true">＋</span>Request Booking</button>
+        <button class="nav-link" type="button" data-view="reservations"><span aria-hidden="true">▤</span>My Reservations <span class="nav-count" id="bookingCount">0</span></button>
+        <button class="nav-link" type="button" data-view="availability"><span aria-hidden="true">◷</span>Lab Availability</button>
+        <p class="nav-caption nav-caption--secondary">RESERVATION</p>
+        <button class="nav-link" type="button" data-view="payment"><span aria-hidden="true">▭</span>Payment</button>
+        <button class="nav-link" type="button" data-view="pass"><span aria-hidden="true">▦</span>Reservation Pass</button>
+        <button class="nav-link" type="button" data-view="account"><span aria-hidden="true">♙</span>Account</button>
+        <div class="nav-note"><strong>Computer Science labs</strong><span>For coursework, programming, and class activities.</span></div>
+      </nav>
+
+      <main class="main-content">
+        <section class="view-section is-visible" id="view-dashboard" aria-labelledby="pageTitle">
+          <div class="page-heading"><div><p class="eyebrow">COMPUTER SCIENCE · LAB SERVICES</p><h1 id="pageTitle">Reservation Dashboard</h1><p>Request a lab, follow its approval status, then pay and access your reservation pass.</p></div><button class="button button--primary" type="button" data-view="request">＋ New booking request</button></div>
+          <div class="stat-grid" id="dashboardStats"></div>
+          <article class="panel availability-panel"><div class="panel-heading"><div><p class="eyebrow">FIND A SPACE</p><h2>Laboratory Availability</h2></div><button class="button button--soft" type="button" data-view="availability">View all labs →</button></div><div class="lab-grid" id="dashboardLabs"></div></article>
+          <article class="panel"><div class="panel-heading"><div><p class="eyebrow">YOUR LATEST REQUESTS</p><h2>Booking Status</h2></div><button class="text-action" type="button" data-view="reservations">All reservations →</button></div><div class="reservation-list" id="dashboardReservations"></div></article>
+        </section>
+
+        <section class="view-section" id="view-request" aria-labelledby="requestTitle" hidden>
+          <div class="page-heading"><div><p class="eyebrow">COMPUTER SCIENCE FACILITIES</p><h1 id="requestTitle">Request Booking</h1><p>Choose a lab, date, time slot, and equipment. Your request will be sent for approval.</p></div></div>
+          <article class="panel form-panel">
+            <form id="bookingForm" novalidate>
+              <div class="form-section-title"><span>01</span><div><h2>Request details</h2><p>Select the CS lab and resources you need.</p></div></div>
+              <div class="form-grid">
+                <label class="form-field form-field--wide">Computer laboratory<select id="bookingLab" name="lab" required></select></label>
+                <label class="form-field">Booking date<input id="bookingDate" name="date" type="date" required></label>
+                <label class="form-field">Time slot<select id="bookingStart" name="start" required></select></label>
+                <label class="form-field">Duration<select id="bookingDuration" name="duration"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option></select></label>
+                <label class="form-field">Equipment needed<select id="bookingEquipment" name="equipment"><option value="None">No additional equipment</option></select></label>
+                <label class="form-field">CS activity<input id="bookingPurpose" name="purpose" type="text" maxlength="100" placeholder="e.g. Programming lab, group project"></label>
+              </div>
+              <div class="form-section-title form-section-title--spaced"><span>02</span><div><h2>Requester information</h2><p>Use your Computer Science student or instructor profile.</p></div></div>
+              <div class="form-grid">
+                <label class="form-field">Full name<input id="guestName" name="name" type="text" maxlength="70" autocomplete="name" required placeholder="Your full name"></label>
+                <label class="form-field">Email address<input id="guestEmail" name="email" type="email" maxlength="120" autocomplete="email" required placeholder="you@school.edu"></label>
+                <label class="form-field form-field--wide">Computer Science course / year level<input id="guestCourse" name="course" type="text" maxlength="80" required placeholder="e.g. BSCS · 2nd Year"></label>
+                <label class="form-field form-field--wide">Message for your reservation <span class="optional-label">Optional</span><textarea id="bookingMessage" name="message" rows="3" maxlength="240" placeholder="Add details for the reviewer or a note to include with your booking."></textarea></label>
+              </div>
+              <p class="form-error" id="formError" role="alert" hidden></p>
+              <div class="form-actions"><p>After submission, your request is marked <strong>Pending approval</strong>.</p><button class="button button--primary" type="submit">Submit booking request <span aria-hidden="true">→</span></button></div>
+            </form>
+          </article>
+        </section>
+
+        <section class="view-section" id="view-reservations" aria-labelledby="reservationsTitle" hidden><div class="page-heading"><div><p class="eyebrow">REQUEST HISTORY</p><h1 id="reservationsTitle">My Reservations</h1><p>Review requests, approval decisions, payment, and lab access.</p></div></div><div class="reservation-list reservation-list--full" id="allReservations"></div></section>
+
+        <section class="view-section" id="view-availability" aria-labelledby="availabilityTitle" hidden><div class="page-heading"><div><p class="eyebrow">COMPUTER SCIENCE FACILITIES</p><h1 id="availabilityTitle">Lab Availability</h1><p>Choose a lab to start a reservation request. Availability is based on requests stored in this browser.</p></div></div><div class="lab-grid lab-grid--full" id="allLabs"></div></section>
+
+        <section class="view-section" id="view-payment" aria-labelledby="paymentTitle" hidden><div class="page-heading"><div><p class="eyebrow">AFTER APPROVAL</p><h1 id="paymentTitle">Payment</h1><p>Only approved reservations can proceed to payment.</p></div></div><div class="reservation-list reservation-list--full" id="paymentReservations"></div></section>
+
+        <section class="view-section" id="view-pass" aria-labelledby="passTitle" hidden><div class="page-heading"><div><p class="eyebrow">LAB ACCESS</p><h1 id="passTitle">Reservation Pass</h1><p>Paid reservations receive a pass for check-in and check-out.</p></div></div><div class="pass-list" id="passReservations"></div></section>
+
+        <section class="view-section" id="view-account" aria-labelledby="accountTitle" hidden><div class="page-heading"><div><p class="eyebrow">ACCOUNT</p><h1 id="accountTitle">Computer Science Profile</h1><p>Save your requester details for future lab booking requests.</p></div></div><article class="panel account-panel"><form id="accountForm" novalidate><div class="form-grid"><label class="form-field">Full name<input id="profileName" name="name" type="text" maxlength="70" required></label><label class="form-field">School email<input id="profileEmail" name="email" type="email" maxlength="120" required></label><label class="form-field form-field--wide">Computer Science course / year level<input id="profileCourse" name="course" type="text" maxlength="80" required placeholder="e.g. BSCS · 2nd Year"></label></div><p class="demo-note"><strong>Account information:</strong> profile details are saved in this browser. Secure sign-in and account verification require the College of Saint Lawrence account service.</p><p class="form-error" id="accountError" role="alert" hidden></p><button class="button button--primary" type="submit">Save profile</button><button class="button button--soft" id="clearProfileButton" type="button">Clear profile</button></form></article></section>
+
+        <footer class="page-footer"><span>College of Saint Lawrence</span><span>Computer Science Department</span><span>Reservations are saved on this device</span></footer>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
